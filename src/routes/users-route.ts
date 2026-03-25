@@ -50,6 +50,10 @@ export const usersRoute = new Elysia({ prefix: "/api" })
         email: t.String({ maxLength: 255 }),
         password: t.String({ maxLength: 255 }),
       }),
+      detail: {
+        summary: "Registrasi User Baru",
+        tags: ["Auth"],
+      },
     }
   )
   .post(
@@ -65,6 +69,10 @@ export const usersRoute = new Elysia({ prefix: "/api" })
         email: t.String(),
         password: t.String(),
       }),
+      detail: {
+        summary: "Login User",
+        tags: ["Auth"],
+      },
     }
   )
   .guard({
@@ -79,15 +87,33 @@ export const usersRoute = new Elysia({ prefix: "/api" })
     const token = headers.authorization!.replace("Bearer ", "").trim();
     return { token };
   })
-  .get("/users/current", async ({ token }) => {
-    const user = await usersService.getCurrentUser(token);
-    return {
-      data: user,
-    };
-  })
-  .delete("/users/logout", async ({ token }) => {
-    await usersService.logout(token);
-    return {
-      data: "OK",
-    };
-  });
+  .get(
+    "/users/current",
+    async ({ token }) => {
+      const user = await usersService.getCurrentUser(token);
+      return {
+        data: user,
+      };
+    },
+    {
+      detail: {
+        summary: "Ambil Profil User Saat Ini",
+        tags: ["Auth"],
+      },
+    }
+  )
+  .delete(
+    "/users/logout",
+    async ({ token }) => {
+      await usersService.logout(token);
+      return {
+        data: "OK",
+      };
+    },
+    {
+      detail: {
+        summary: "Logout User",
+        tags: ["Auth"],
+      },
+    }
+  );
