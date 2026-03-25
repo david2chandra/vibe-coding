@@ -70,4 +70,27 @@ export const usersService = {
 
     return token;
   },
+  async getCurrentUser(token: string) {
+    if (!token) {
+      throw new Error("Unauthorized");
+    }
+
+    const sessionData = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        createdAt: users.createdAt,
+      })
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(eq(sessions.token, token))
+      .limit(1);
+
+    if (sessionData.length === 0) {
+      throw new Error("Unauthorized");
+    }
+
+    return sessionData[0];
+  },
 };
