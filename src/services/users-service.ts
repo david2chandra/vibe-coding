@@ -4,8 +4,17 @@ import { eq } from "drizzle-orm";
 
 export const usersService = {
   /**
-   * Mendaftarkan user baru ke sistem.
-   * Melakukan pengecekan email duplikat dan melakukan hashing pada password.
+   * Mendaftarkan pengguna baru (Registrasi) ke dalam basis data.
+   * 
+   * Fungsi ini memvalidasi apakah email sudah terdaftar sebelumnya. 
+   * Jika belum, fungsi akan melakukan hashing pada plain-text password menggunakan Bcrypt (Bun.password)
+   * dan menyimpan record user baru ke tabel `users`.
+   * 
+   * @param name - Nama lengkap pengguna
+   * @param email - Alamat email unik pengguna
+   * @param password - Kata sandi dalam bentuk plain-text yang akan dienkripsi
+   * @returns {Promise<Object>} Mengembalikan objek data pengguna yang baru dibuat (tanpa password)
+   * @throws {Error} Melempar error "User already exists" apabila email telah digunakan
    */
   async register(name: string, email: string, password: string) {
     // Check if user already exists
@@ -46,8 +55,16 @@ export const usersService = {
   },
   
   /**
-   * Melakukan verifikasi login user.
-   * Jika sukses, akan menghasilkan UUID token baru dan menyimpannya ke tabel sessions.
+   * Mengautentikasi pengguna (Login) berdasarkan kredensial email dan kata sandi.
+   * 
+   * Fungsi ini akan mencocokkan email di database dan memvalidasi kecocokan hash password.
+   * Jika valid, fungsi akan membuat UUID unik sebagai Token Sesi, menyimpannya ke tabel `sessions`,
+   * dan mengembalikan token tersebut kepada klien.
+   * 
+   * @param email - Alamat email pengguna
+   * @param password - Kata sandi dalam bentuk plain-text untuk divalidasi
+   * @returns {Promise<string>} String UUID v4 yang bertindak sebagai Bearer token sesi pengguna
+   * @throws {Error} Melempar error "Email atau password salah" jika kredensial tidak valid/ditemukan
    */
   async login(email: string, password: string) {
     // Find user by email
@@ -80,8 +97,14 @@ export const usersService = {
   },
 
   /**
-   * Mengambil data profil user yang sedang login berdasarkan token sesi.
-   * Melakukan join antara tabel sessions dan users.
+   * Mengambil informasi profil pengguna yang sedang aktif (Current User) berdasarkan autentikasi Token Sesi.
+   * 
+   * Fungsi ini melakukan operasi INNER JOIN antara tabel `sessions` dan `users`
+   * untuk memastikan bahwa token tersebut valid, belum kadaluwarsa/dihapus, dan terikat pada user tertentu.
+   * 
+   * @param token - Bearer UUID token sesi pengguna yang didapat ketika proses Login
+   * @returns {Promise<Object>} Mengembalikan informasi profil pengguna (id, name, email, createdAt)
+   * @throws {Error} Melempar error "Unauthorized" apabila token kosong, tidak valid, atau sesi telah hangus
    */
   async getCurrentUser(token: string) {
     if (!token) {
@@ -108,7 +131,14 @@ export const usersService = {
   },
 
   /**
-   * Menghapus sesi user (logout) dengan cara menghapus record token dari tabel sessions.
+   * Mencabut akses pengguna (Logout) dengan cara menginvaliasi Token Sesi.
+   * 
+   * Fungsi ini akan mengeksekusi operasi DELETE secara fisik pada tabel `sessions`
+   * berdasarkan token yang diberikan. Jika token tidak ditemukan, permintaan akan ditolak.
+   * 
+   * @param token - Bearer UUID token aktif pengguna yang akan dihapus dari sistem
+   * @returns {Promise<void>} Tidak mengembalikan data apa-apa jika operasi penghapusan sukses
+   * @throws {Error} Melempar error "Unauthorized" jika token kosong atau token tidak valid/sudah dihapus
    */
   async logout(token: string) {
     if (!token) {
