@@ -1,3 +1,4 @@
+import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { db } from "./db";
 import { users } from "./db/schema";
