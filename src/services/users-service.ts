@@ -93,4 +93,17 @@ export const usersService = {
 
     return sessionData[0];
   },
+
+  async logout(token: string) {
+    if (!token) {
+      throw new Error("Unauthorized");
+    }
+
+    const [result] = await db.delete(sessions).where(eq(sessions.token, token));
+
+    // result.affectedRows is specific to mysql2 driver output in Drizzle
+    if (result.affectedRows === 0) {
+      throw new Error("Unauthorized");
+    }
+  },
 };
