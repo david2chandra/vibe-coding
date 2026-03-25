@@ -110,6 +110,7 @@ Platform ini sangat berpegang pada Relational Database. Terdapat 2 rancangan str
    bun run dev
    ```
 8. *Server Anda sekarang responsif di **`http://localhost:3000`***
+9. *Akses dokumentasi interaktif (Swagger) di **`http://localhost:3000/swagger`***
 
 ---
 
