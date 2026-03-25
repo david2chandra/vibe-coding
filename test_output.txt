@@ -1,0 +1,29 @@
+bun test v1.3.11 (af24e281)
+
+tests\users.test.ts:
+(pass) Users API > POST /api/users (Registration) > should register a new user successfully [234.00ms]
+(pass) Users API > POST /api/users (Registration) > should fail when registering with a duplicate email [156.00ms]
+(pass) Users API > POST /api/users (Registration) > should fail when field exceeds 255 characters
+(pass) Users API > POST /api/users/login > should login successfully and return token [250.00ms]
+130 |         body = JSON.parse(text);
+131 |       } catch (e) {
+132 |         console.log("NON-JSON RESP TEXT:", text);
+133 |         throw e;
+134 |       }
+135 |       expect(body.error).toBe("Email atau password salah");
+                               ^
+error: expect(received).toBe(expected)
+
+Expected: "Email atau password salah"
+Received: "Unauthorized"
+
+      at <anonymous> (C:\Users\david\MEGASync\Workspaces\Personal\vibe-coding\tests\users.test.ts:135:26)
+(fail) Users API > POST /api/users/login > should fail with wrong password [282.00ms]
+(pass) Users API > Authentication Protected Routes > GET /api/users/current > should get current user with valid token [359.00ms]
+(pass) Users API > Authentication Protected Routes > GET /api/users/current > should fail with invalid token [297.00ms]
+(pass) Users API > Authentication Protected Routes > DELETE /api/users/logout > should logout successfully [265.00ms]
+
+ 7 pass
+ 1 fail
+ 19 expect() calls
+Ran 8 tests across 1 file. [2.32s]

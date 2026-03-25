@@ -6,10 +6,11 @@ export const usersRoute = new Elysia({ prefix: "/api" })
     UNAUTHORIZED: Error,
   })
   .onError(({ code, error, set }) => {
-    if (code === "UNAUTHORIZED" || (error as any).message === "Unauthorized") {
+    const message = (error as any).message;
+    if (code === "UNAUTHORIZED" || message === "Unauthorized" || message === "Email atau password salah") {
       set.status = 401;
       return {
-        error: "Unauthorized",
+        error: message,
       };
     }
   })
