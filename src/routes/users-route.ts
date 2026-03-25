@@ -1,5 +1,7 @@
 import { Elysia, t } from "elysia";
 import { usersService } from "../services/users-service";
+import { db } from "../db";
+import { users } from "../db/schema";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
   .error({
