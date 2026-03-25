@@ -54,6 +54,22 @@ export const usersRoute = new Elysia({ prefix: "/api" })
         summary: "Registrasi User Baru",
         tags: ["Auth"],
       },
+      response: {
+        200: t.Object({
+          message: t.String(),
+          data: t.Object({
+            id: t.Number(),
+            name: t.String(),
+            email: t.String(),
+            createdAt: t.Any(),
+            updatedAt: t.Any(),
+          }),
+        }),
+        400: t.Object({
+          message: t.String(),
+          error: t.String(),
+        }),
+      },
     }
   )
   .post(
@@ -72,6 +88,14 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       detail: {
         summary: "Login User",
         tags: ["Auth"],
+      },
+      response: {
+        200: t.Object({
+          data: t.String(),
+        }),
+        401: t.Object({
+          error: t.String(),
+        }),
       },
     }
   )
@@ -100,6 +124,19 @@ export const usersRoute = new Elysia({ prefix: "/api" })
         summary: "Ambil Profil User Saat Ini",
         tags: ["Auth"],
       },
+      response: {
+        200: t.Object({
+          data: t.Object({
+            id: t.Number(),
+            name: t.String(),
+            email: t.String(),
+            createdAt: t.Any(),
+          }),
+        }),
+        401: t.Object({
+          error: t.String(),
+        }),
+      },
     }
   )
   .delete(
@@ -114,6 +151,14 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       detail: {
         summary: "Logout User",
         tags: ["Auth"],
+      },
+      response: {
+        200: t.Object({
+          data: t.String(),
+        }),
+        401: t.Object({
+          error: t.String(),
+        }),
       },
     }
   );
