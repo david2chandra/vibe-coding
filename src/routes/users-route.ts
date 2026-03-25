@@ -69,6 +69,10 @@ export const usersRoute = new Elysia({ prefix: "/api" })
           message: t.String(),
           error: t.String(),
         }),
+        500: t.Object({
+          message: t.String(),
+          error: t.Any(),
+        }),
       },
     }
   )
