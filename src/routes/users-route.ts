@@ -2,6 +2,17 @@ import { Elysia, t } from "elysia";
 import { usersService } from "../services/users-service";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
+  .error({
+    UNAUTHORIZED: Error,
+  })
+  .onError(({ code, error, set }) => {
+    if (code === "UNAUTHORIZED" || (error as any).message === "Unauthorized") {
+      set.status = 401;
+      return {
+        error: "Unauthorized",
+      };
+    }
+  })
   .post(
     "/users",
     async ({ body, set }) => {
@@ -42,18 +53,11 @@ export const usersRoute = new Elysia({ prefix: "/api" })
   )
   .post(
     "/users/login",
-    async ({ body, set }) => {
-      try {
-        const token = await usersService.login(body.email, body.password);
-        return {
-          data: token,
-        };
-      } catch (error: any) {
-        set.status = 401;
-        return {
-          error: error.message,
-        };
-      }
+    async ({ body }) => {
+      const token = await usersService.login(body.email, body.password);
+      return {
+        data: token,
+      };
     },
     {
       body: t.Object({
@@ -62,51 +66,27 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       }),
     }
   )
-  .get(
-    "/users/current",
-    async ({ headers, set }) => {
-      try {
-        const authHeader = headers.authorization;
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-          set.status = 401;
-          return { error: "Unauthorized" };
-        }
-
-        const token = authHeader.replace("Bearer ", "").trim();
-        const user = await usersService.getCurrentUser(token);
-
-        return {
-          data: user,
-        };
-      } catch (error: any) {
-        set.status = 401;
-        return {
-          error: "Unauthorized",
-        };
+  .guard({
+    beforeHandle: ({ headers }) => {
+      const authHeader = headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        throw new Error("Unauthorized");
       }
-    }
-  )
-  .delete(
-    "/users/logout",
-    async ({ headers, set }) => {
-      try {
-        const authHeader = headers.authorization;
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-          set.status = 401;
-          return { error: "Unauthorized" };
-        }
-
-        const token = authHeader.replace("Bearer ", "").trim();
-        await usersService.logout(token);
-
-        return {
-          data: "OK",
-        };
-      } catch (error: any) {
-        set.status = 401;
-        return {
-          error: "Unauthorized",
-        };
-      }
-    }
-  );
+    },
+  })
+  .derive(({ headers }) => {
+    const token = headers.authorization!.replace("Bearer ", "").trim();
+    return { token };
+  })
+  .get("/users/current", async ({ token }) => {
+    const user = await usersService.getCurrentUser(token);
+    return {
+      data: user,
+    };
+  })
+  .delete("/users/logout", async ({ token }) => {
+    await usersService.logout(token);
+    return {
+      data: "OK",
+    };
+  });
