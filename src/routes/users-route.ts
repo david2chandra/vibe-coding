@@ -26,7 +26,7 @@ export const usersRoute = new Elysia({ prefix: "/api" })
 
         return {
           message: "User created successfully",
-          data: user,
+          data: user!,
         };
       } catch (error: any) {
         if (error.message === "User already exists") {
@@ -120,7 +120,7 @@ export const usersRoute = new Elysia({ prefix: "/api" })
     async ({ token }) => {
       const user = await usersService.getCurrentUser(token);
       return {
-        data: user,
+        data: user!,
       };
     },
     {
