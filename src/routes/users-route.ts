@@ -14,6 +14,37 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       };
     }
   })
+  .get(
+    "/users",
+    async () => {
+      return await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        })
+        .from(users);
+    },
+    {
+      detail: {
+        summary: "Ambil Semua Daftar User",
+        tags: ["Auth"],
+      },
+      response: {
+        200: t.Array(
+          t.Object({
+            id: t.Number(),
+            name: t.String(),
+            email: t.String(),
+            createdAt: t.Any(),
+            updatedAt: t.Any(),
+          })
+        ),
+      },
+    }
+  )
   .post(
     "/users",
     async ({ body, set }) => {
